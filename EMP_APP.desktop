@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=EmployeeApp
+Icon=/home/student/Desktop/Employee_Management_System/logo.png
+Exec=python3 /home/student/Desktop/Employee_Management_System/test.py
+Type=Application
+Terminal=true
+Version=0.99
+
+Name[en_IN]=EMP_APP
