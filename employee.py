@@ -7,11 +7,16 @@ root.geometry("400x400+0+0")
 lab1=tk.Label(root,text="hello")
 lab1.pack()
 root.mainloop()'''
+
+
+from curses.ascii import isalpha
 from tkinter import*
 from tkinter import ttk
+import tkinter
 from PIL import Image, ImageTk
 import mysql.connector
 from tkinter import messagebox
+import re
 class employee:
     def __init__(self,root):# here instead root u can use anyother words like master .it just indicates window name
         self.root=root#initialisation
@@ -33,6 +38,7 @@ class employee:
         self.var_country=StringVar()
         self.var_salary=StringVar()
 
+       
         lbl_title=Label(self.root,text='EMPLOYEE MANAGEMENT SYSTEM',font=('times new roman',37,'bold'),fg='darkblue',bg='white')# self.root means on which window does this happening means named as root(window name)   
        #fg=foreground for letters coloring
         lbl_title.place(x=0,y=0,width=1530,height=50)#to show this title on window
@@ -117,10 +123,10 @@ class employee:
         txt_address=ttk.Entry(upper_frame,textvariable=self.var_address,width=26,font=('arial',11,'bold'))
         txt_address.grid(row=2,column=1,padx=2,pady=7)
             #Married
-        lb1_married_status=Label(upper_frame,width=13,font=('arail',12,'bold'),text='Married Status:',bg='white')
+        lb1_married_status=Label(upper_frame,width=13,font=('arail',12,'bold'),text='Married_Status:',bg='white')
         lb1_married_status.grid(row=2,column=2,stick=W,padx=2,pady=7)
         com_txt_married=ttk.Combobox(upper_frame,textvariable=self.var_married,state="readonly",font=('arial',12,'bold'),width=23)
-        com_txt_married['value']=('Married','Unmarried')
+        com_txt_married['value']=('Married','Unmarried',"Other")
         com_txt_married.current(0)
         com_txt_married.grid(row=2,column=3,padx=2,pady=7)
                 #DOB
@@ -136,7 +142,7 @@ class employee:
 
         #Id_Proof
         com_txt_proof=ttk.Combobox(upper_frame,textvariable=self.var_idproofcombo,state="readonly",font=('arial',12,'bold'),width=18)
-        com_txt_proof['value']=('select ID Proof','PAN CARD',"ADHAR CARD","DRIVING LICENS")
+        com_txt_proof['value']=('select ID Proof','PAN CARD','ADHAR CARD','DRIVING LICENS')
         com_txt_proof.current(0)
         com_txt_proof.grid(row=4,column=0,sticky=W,padx=2,pady=7)
 
@@ -155,7 +161,7 @@ class employee:
         #phone
         lb1_phone=Label(upper_frame,font=('arial',12,'bold'),text="Phone No:",bg='white')
         lb1_phone.grid(row=0,column=4,sticky=W,padx=2,pady=7)
-
+        
         txt_phone=ttk.Entry(upper_frame,textvariable=self.var_phone,width=22,font=('arial',11,'bold'))
         txt_phone.grid(row=0,column=5,padx=2,pady=7)
 
@@ -225,21 +231,21 @@ class employee:
         scroll_x=ttk.Scrollbar(table_frame,orient=HORIZONTAL)
         scroll_y=ttk.Scrollbar(table_frame,orient=VERTICAL)
         #now making tree view means table 
-        self.employee_table=ttk.Treeview(table_frame,column=("dep","name","degi","email","address","married","dob","doj","idproofcombo","idproof","gender","phone","country","salary",),xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
+        self.employee_table=ttk.Treeview(table_frame,column=("dep","name","degi","email","address","married","doj","dob","idproofcombo","idproof","gender","phone","country","salary",),xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
         #the above in column are dumy values original values will be given to below
         scroll_x.pack(side=BOTTOM,fill=X)# fill means fill in x axis
         scroll_y.pack(side=RIGHT,fill=Y)# fil means fill in y axis
         scroll_x.config(command=self.employee_table.xview)#You want to see ths in x view
         scroll_y.config(command=self.employee_table.yview)#you want to see this in y view
         #heading
-        self.employee_table.heading('dep',text='Department')
+        self.employee_table.heading('dep',text="Department")
         self.employee_table.heading('name',text="Name")
         self.employee_table.heading('degi',text="Designation")
-        self.employee_table.heading("email",text="Email")
+        self.employee_table.heading('email',text="Email")
         self.employee_table.heading('address',text="Address")
-        self.employee_table.heading('married',text="Married Status")
-        self.employee_table.heading('dob',text="DOB")
+        self.employee_table.heading('married',text="Married_Status")
         self.employee_table.heading('doj',text="DOJ")
+        self.employee_table.heading('dob',text="DOB")
         self.employee_table.heading('idproofcombo',text="Id_proof_type")
         self.employee_table.heading('idproof',text="Id_proof")
         self.employee_table.heading('gender',text="Gender")
@@ -255,8 +261,8 @@ class employee:
         self.employee_table.column("email",width=100)
         self.employee_table.column("address",width=100)
         self.employee_table.column("married",width=100)
-        self.employee_table.column("dob",width=100)
         self.employee_table.column("doj",width=100)
+        self.employee_table.column("dob",width=100)
         self.employee_table.column("idproofcombo",width=100)
         self.employee_table.column("idproof",width=100)
         self.employee_table.column("gender",width=100)
@@ -274,36 +280,173 @@ class employee:
     
 
     def  add_data(self):
+            count=0
             #i want to put conditions like some validation required while entering data by user
             if self.var_dep.get()=="" or self.var_email.get()=="":#get()method is used to get data
                     messagebox.showerror('Error','All field are required')# if either one is true then i have to show a message through showerror
-            else:
+                    
+            elif True:
+                    flag = 0
+                    data = self.var_phone.get()
+                    if len(str(data)) == 10:
+                            if str(data).isnumeric():
+                                    flag = 1
+                            else:
+                                    flag = 0
+                    else:
+                            flag = 0
+                    if not flag:
+                        count=1
+                        messagebox.showerror('Invalid', 'Phone Number is Invalid')
+                    flag1 = 0
+                    pat = "^[a-zA-z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
+                    mail = self.var_email.get()
+                    if re.match(pat, mail):
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'Email is Invalid')
+                    ctc = self.var_salary.get()
+                    if ctc.isnumeric():
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'CTC is Invalid')
+                    
+                    country = self.var_country.get()
+                    if country.isalpha():
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'Country Name is Invalid')
+                    flag = 0
+                    data = self.var_idproof.get()
+                    val = self.var_idproofcombo.get()
+                    if val == 'PAN CARD':
+                            if len(str(data)) == 10:
+                                    if str(data).isalpha():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'PAN is Invalid')
+                    flag = 0
+                    if val == "ADHAR CARD":
+                            if len(str(data)) == 12:
+                                    if str(data).isalnum():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'Adhar is Invalid')
+                    flag = 0
+                    if val == "DRIVING LICENS":
+                            if len(str(data)) == 16:
+                                    if str(data).isalpha():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'Driving License is Invalid')
+                    dob = self.var_dob.get()
+                    ls = dob.split("/")
+                    dates = ['01', '02', '03', '04', '05', '06', '07', '08','09']
+                    tone = ['01','03','05','07','08','10','12']
+                    tzero = ['04','06','11']
+                    flag = 0
+                    if ls[1] == '02':
+                            if ls[0] in dates or 10 <= int(ls[0] <=29):
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tone:
+                            if ls[0]in dates or 10<= int(ls[0]) <= 31:
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tzero:
+                            if ls[0] in dates or 10 <= int(ls[0]) <= 30:
+                                    flag = 1
+                            else:
+                                    flag = 0
+                    else:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid Month")
+                    
+                    if flag == 0:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid date")
+
+                    doj = self.var_doj.get()
+                    ls = doj.split("/")
+                    dates = ['01', '02', '03', '04', '05', '06', '07', '08','09']
+                    tone = ['01','03','05','07','08','10','12']
+                    tzero = ['04','06','11']
+                    flag = 0
+                    if ls[1] == '02':
+                            if ls[0] in dates or 10 <= int(ls[0] <=29):
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tone:
+                            if ls[0]in dates or 10<= int(ls[0]) <= 31:
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tzero:
+                            if ls[0] in dates or 10 <= int(ls[0]) <= 30:
+                                    flag = 1
+                            else:
+                                    flag = 0
+                    else:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid Month")
+                    
+                    if flag == 0:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid date")       
+            
                     #if i get any error then this try block will understand how to run
-                    try:
+                    
+                    if(count==0):
+                        try:
+
                             #now we have to estabilish a connection with database
-                            conn=mysql.connector.connect(host='localhost',user='root',password='iiits123',database='mydat')
-                            my_cursor=conn.cursor()# need to creat a cursor
-                            my_cursor.execute('insert into employee1 values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(
-                                                                                                self.var_dep.get(),
-                                                                                                self.var_name.get(),
-                                                                                                self.var_designation.get(),
-                                                                                                self.var_email.get(),
-                                                                                                self.var_address.get(),
-                                                                                                self.var_married.get(),
-                                                                                                self.var_dob.get(),
-                                                                                                self.var_doj.get(),
-                                                                                                self.var_idproofcombo.get(),
-                                                                                                self.var_idproof.get(),
-                                                                                                self.var_gender.get(),
-                                                                                                self.var_phone.get(),
-                                                                                                self.var_country.get(),
-                                                                                                self.var_salary.get()))#this execute command is bolongs to mysql %s can be called as holding place
-                            conn.commit()
-                            self.fetch_data()#this is required because when we give data in middle circumstance then it should also add into database
-                            conn.close()
-                            messagebox.showinfo('success','Employee has been added!',parent=self.root)
-                    except Exception as es:
-                            messagebox.showerror('Error',f'Due To:{str(es)}',parent=self.root)
+                                conn=mysql.connector.connect(host='localhost',user='root',password='iiits123',database='mydat')
+                                my_cursor=conn.cursor()# need to creat a cursor
+                                my_cursor.execute('insert into employee1 values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(
+                                                                                                        self.var_dep.get(),
+                                                                                                        self.var_name.get(),
+                                                                                                        self.var_designation.get(),
+                                                                                                        self.var_email.get(),
+                                                                                                        self.var_address.get(),
+                                                                                                        self.var_married.get(),
+                                                                                                        self.var_doj.get(),
+                                                                                                        self.var_dob.get(),
+                                                                                                        self.var_idproofcombo.get(),
+                                                                                                        self.var_idproof.get(),
+                                                                                                        self.var_gender.get(),
+                                                                                                        self.var_phone.get(),
+                                                                                                        self.var_country.get(),
+                                                                                                        self.var_salary.get()))#this execute command is bolongs to mysql %s can be called as holding place
+                                conn.commit()
+                                self.fetch_data()#this is required because when we give data in middle circumstance then it should also add into database
+                                conn.close()
+                                messagebox.showinfo('success','Employee has been added!',parent=self.root)
+                        except Exception as es:
+                                messagebox.showerror('Error',f'Due To:{str(es)}',parent=self.root)
+                    else:
+                        messagebox.showerror('Error',"invalid details cannot save data")
+
         #Fetch data
     def fetch_data(self):
             conn=mysql.connector.connect(host='localhost',user='root',password='iiits123',database='mydat')
@@ -332,8 +475,8 @@ class employee:
             self.var_email.set(data[3])
             self.var_address.set(data[4])
             self.var_married.set(data[5])
-            self.var_dob.set(data[6])
-            self.var_doj.set(data[7])
+            self.var_doj.set(data[6])
+            self.var_dob.set(data[7])
             self.var_idproofcombo.set(data[8])
             self.var_idproof.set(data[9])
             self.var_gender.set(data[10])
@@ -341,40 +484,181 @@ class employee:
             self.var_country.set(data[12])
             self.var_salary.set(data[13]) #after this we need to this at table soo go to table(above it is)
     def update_data(self):
+            count=0
             if self.var_dep.get()=="" or self.var_email.get()=="":#get()method is used to get data
                     messagebox.showerror('Error','All field are required')# if either one is true then i have to show a message through showerror
+            
             else:
-                    #if i get any error then this try block will understand how to run
-                    try:
-                            update=messagebox.askyesno('Update','Are you sure to update this employee data')
-                            if update>0:
-                            #now we have to estabilish a connection with database
-                                conn=mysql.connector.connect(host='localhost',user='root',password='iiits123',database='mydat')
-                                my_cursor=conn.cursor()
-                                my_cursor.execute('update employee1 set Department=%s,Name=%s,Designation=%s,Email=%s,Address=%s,Married_status=%s,DOB=%s,DOJ=%s,Id_proof_type=%s,Gender=%s,Phone=%s,Country=%s,Salary=%s where id_proof=%s',(self.var_dep.get(),
-                                                                                                                                                                                                                                              self.var_name.get(),
-                                                                                                                                                                                                                                              self.var_designation.get(),
-                                                                                                                                                                                                                                              self.var_email.get(),
-                                                                                                                                                                                                                                              self.var_address.get(),
-                                                                                                                                                                                                                                              self.var_married.get(),
-                                                                                                                                                                                                                                              self.var_dob.get(),
-                                                                                                                                                                                                                                              self.var_doj.get(),
-                                                                                                                                                                                                                                              self.var_idproofcombo.get(),
-                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                              self.var_gender.get(),
-                                                                                                                                                                                                                                              self.var_phone.get(),
-                                                                                                                                                                                                                                              self.var_country.get(),
-                                                                                                                                                                                                                                              self.var_salary.get(),
-                                                                                                                                                                                                                                              self.var_idproof.get()))
+                    flag = 0
+                    data = self.var_phone.get()
+                    if len(str(data)) == 10:
+                            if str(data).isnumeric():
+                                    flag = 1
                             else:
-                                    if not update:
-                                            return
-                            conn.commit()
-                            self.fetch_data()
-                            conn.close()
-                            messagebox.showinfo('success','Employee successfully updated',parent=self.root)
-                    except Exception as es:
-                            messagebox.showerror('Error',f'Due To:{str(es)}',parent=self.root)        
+                                    flag = 0
+                    else:
+                            flag = 0
+                    if not flag:
+                        count=1
+                        messagebox.showerror('Invalid', 'Phone Number is Invalid')
+                    flag1 = 0
+                    pat = "^[a-zA-z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
+                    mail = self.var_email.get()
+                    if re.match(pat, mail):
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'Email is Invalid')
+                    ctc = self.var_salary.get()
+                    if ctc.isnumeric():
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'CTC is Invalid')
+                    
+                    country = self.var_country.get()
+                    if country.isalpha():
+                        pass
+                    else:
+                        count=1
+                        messagebox.showerror('Invalid', 'Country Name is Invalid')
+                    flag = 0
+                    data = self.var_idproof.get()
+                    val = self.var_idproofcombo.get()
+                    if val == 'PAN CARD':
+                            if len(str(data)) == 10:
+                                    if str(data).isalpha():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'PAN is Invalid')
+                    flag = 0
+                    if val == "ADHAR CARD":
+                            if len(str(data)) == 12:
+                                    if str(data).isalnum():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'Adhar is Invalid')
+                    flag = 0
+                    if val == "DRIVING LICENS":
+                            if len(str(data)) == 16:
+                                    if str(data).isalpha():
+                                            flag = 1
+                                    else:
+                                            flag = 0
+                            else:
+                                    flag = 0
+                            if not flag:
+                                    count=1
+                                    messagebox.showerror('Invalid', 'Driving License is Invalid')
+                    dob = self.var_dob.get()
+                    ls = dob.split("/")
+                    dates = ['01', '02', '03', '04', '05', '06', '07', '08','09']
+                    tone = ['01','03','05','07','08','10','12']
+                    tzero = ['04','06','11']
+                    flag = 0
+                    if ls[1] == '02':
+                            if ls[0] in dates or 10 <= int(ls[0] <=29):
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tone:
+                            if ls[0]in dates or 10<= int(ls[0]) <= 31:
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tzero:
+                            if ls[0] in dates or 10 <= int(ls[0]) <= 30:
+                                    flag = 1
+                            else:
+                                    flag = 0
+                    else:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid Month")
+                    
+                    if flag == 0:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid date")
+
+                    doj = self.var_doj.get()
+                    ls = doj.split("/")
+                    dates = ['01', '02', '03', '04', '05', '06', '07', '08','09']
+                    tone = ['01','03','05','07','08','10','12']
+                    tzero = ['04','06','11']
+                    flag = 0
+                    if ls[1] == '02':
+                            if ls[0] in dates or 10 <= int(ls[0] <=29):
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tone:
+                            if ls[0]in dates or 10<= int(ls[0]) <= 31:
+                                    flag = 1
+                            else:
+                                    flag =0
+                    elif ls[1] in tzero:
+                            if ls[0] in dates or 10 <= int(ls[0]) <= 30:
+                                    flag = 1
+                            else:
+                                    flag = 0
+                    else:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid Month")
+                    
+                    if flag == 0:
+                            count=1
+                            messagebox.showerror("Invalid", "Invalid date")       
+            
+                    #if i get any error then this try block will understand how to run
+                    
+                    if(count==0):
+                    #if i get any error then this try block will understand how to run
+                        try:
+
+
+
+                                update=messagebox.askyesno('Update','Are you sure to update this employee data')
+                                if update>0:
+
+                                        #now we have to estabilish a connection with database
+                                        conn=mysql.connector.connect(host='localhost',user='root',password='iiits123',database='mydat')
+                                        my_cursor=conn.cursor()
+                                        my_cursor.execute('update employee1 set Department=%s,Name=%s,Designation=%s,Email=%s,Address=%s,Married_Status=%s,DOJ=%s,DOB=%s,Id_proof_type=%s,Gender=%s,Phone=%s,Country=%s,Salary=%s where id_proof=%s',(self.var_dep.get(),
+                                                                                                                                                                                                                                              self.var_name.get(),
+                                                                                                                                                                                                                                             self.var_designation.get(),
+                                                                                                                                                                                                                                             self.var_email.get(),
+                                                                                                                                                                                                                                            self.var_address.get(),
+                                                                                                                                                                                                                                            self.var_married.get(),
+                                                                                                                                                                                                                                            self.var_doj.get(),
+                                                                                                                                                                                                                                            self.var_dob.get(),
+                                                                                                                                                                                                                                            self.var_idproofcombo.get(),
+                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                            self.var_gender.get(),
+                                                                                                                                                                                                                                            self.var_phone.get(),
+                                                                                                                                                                                                                                            self.var_country.get(),
+                                                                                                                                                                                                                                            self.var_salary.get(),
+                                                                                                                                                                                                                                            self.var_idproof.get()))
+                                else:
+                                
+                                        if not update:
+                                                return
+                                conn.commit()
+                                self.fetch_data()
+                                conn.close()
+                                messagebox.showinfo('success','Employee successfully updated',parent=self.root)
+                        except Exception as es:
+                                messagebox.showerror('Error',f'Due To:{str(es)}',parent=self.root) 
+                    else:
+                        messagebox.showerror('Error','invalid data cannot be updated')      
 
                 #Delete
     def delete_data(self):
@@ -405,7 +689,7 @@ class employee:
             self.var_designation.set("")
             self.var_email.set("")
             self.var_address.set("")
-            self.var_married.set("Married")
+            self.var_married.set("")
             self.var_dob.set("")
             self.var_doj.set("")
             self.var_idproofcombo.set("Select ID proof")
